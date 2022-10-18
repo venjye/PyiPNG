@@ -5,7 +5,6 @@ def convert(img_bytes: bytes) -> bytes:
         '''
         This is for turning apple cgbi png to standard png
         :param img_bytes: bytes: apple png
-        :param error: bool: raise error if not CgBI
         :return: bytes: image;
         '''
         # 8 byte signature header which allows computer to know that it's a png
@@ -19,9 +18,13 @@ def convert(img_bytes: bytes) -> bytes:
 
         # Have CgBI?
         cgbi=False
-        idat_cgbi_data = b''
-        IDAT_chunk_type = b''
+        # Save IDAT data
+        IDAT_data_raw = b''
+        # Save IDAT type
+        IDAT_type_raw = b''
+        # Current image width
         img_width = 0
+        # Current image height
         img_height = 0
         # Going through every chunk in png
         while current_byte < len(img_bytes):
@@ -69,8 +72,8 @@ def convert(img_bytes: bytes) -> bytes:
                     raise
             elif chunk_type == 'IDAT':
                 # Add all chunk data.keek data complete
-                IDAT_chunk_type = chunk_type_raw
-                idat_cgbi_data = idat_cgbi_data + chunk_data
+                IDAT_type_raw = chunk_type_raw
+                IDAT_data_raw = IDAT_data_raw + chunk_data
                 current_byte = current_byte + chunk_length + 4
                 continue
             # Turning BGRA into RGBA
@@ -84,7 +87,7 @@ def convert(img_bytes: bytes) -> bytes:
                 # Decompressing, see more https://iphonedev.wiki/index.php/CgBI_file_format#Differences_from_PNG
                 try:
                     buffer_size = img_width * img_height * 4 + img_height
-                    chunk_idat_data = decompress(idat_cgbi_data, wbits=-8, bufsize=buffer_size)
+                    chunk_idat_data = decompress(IDAT_data_raw, wbits=-8, bufsize=buffer_size)
                 except Exception as e:
                     raise ArithmeticError('Error resolving IDAT chunk!\n' + str(e))
                 # Creating bytes like new data
@@ -109,10 +112,10 @@ def convert(img_bytes: bytes) -> bytes:
                 chunk_idat_data = compress(chunk_idat_data)
                 chunk_length_raw = len(chunk_idat_data).to_bytes(4, 'big')
                 # cal new crc
-                new_CRC = crc32(IDAT_chunk_type)
+                new_CRC = crc32(IDAT_type_raw)
                 new_CRC = crc32(chunk_idat_data, new_CRC)
                 new_CRC = (new_CRC + 0x100000000) % 0x100000000
-                new_PNG = new_PNG + chunk_length_raw + IDAT_chunk_type + chunk_idat_data + new_CRC.to_bytes(4, 'big')
+                new_PNG = new_PNG + chunk_length_raw + IDAT_type_raw + chunk_idat_data + new_CRC.to_bytes(4, 'big')
 
             new_CRC = crc32(chunk_type_raw)
             new_CRC = crc32(chunk_data, new_CRC)

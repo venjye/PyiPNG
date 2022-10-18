@@ -1,6 +1,6 @@
 from setuptools import setup,find_packages
 
-version = '1.0.2'
+version = '1.0.3'
 
 with open('./README.rst',encoding='utf-8') as f:
     readme = f.read()
@@ -18,10 +18,11 @@ setup(
     description="Convert CgBI to PNG with Python",
     long_description=readme,
     packages=find_packages(exclude=["tests*"]),
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

@@ -10,7 +10,7 @@ None
 Installation
 -------------
 
-Package is uploaded on [PyPI](https://pypi.org/project/pyipng).
+Package is uploaded on `PyPI<https://pypi.org/project/pyipng>`.
 You can install it with pip::
 
     $ python3 -m pip install PyiPNG
