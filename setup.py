@@ -1,8 +1,8 @@
 from setuptools import setup,find_packages
 
-version = '1.0.0'
+version = '1.0.2'
 
-with open('./README.md',encoding='utf-8') as f:
+with open('./README.rst',encoding='utf-8') as f:
     readme = f.read()
 
 
@@ -17,12 +17,8 @@ setup(
     },
     description="Convert CgBI to PNG with Python",
     long_description=readme,
-    packages=find_packages(exclude=["tests*", "pymysql.tests*"]),
+    packages=find_packages(exclude=["tests*"]),
     python_requires=">=3.7",
-    extras_require={
-        "zlib": ["cryptography"],
-        "ed25519": ["PyNaCl>=1.4.0"],
-    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Programming Language :: Python :: 3",
@@ -35,7 +31,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Topic :: Image",
+        "Topic :: Scientific/Engineering :: Image Processing",
     ],
     keywords="CgBI",
 )

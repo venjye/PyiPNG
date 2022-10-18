@@ -1,4 +1,4 @@
-from zlib import decompress,compress
+from zlib import decompress,compress,crc32
 from struct import unpack
 
 def convert(img_bytes: bytes) -> bytes:
@@ -84,7 +84,7 @@ def convert(img_bytes: bytes) -> bytes:
                 # Decompressing, see more https://iphonedev.wiki/index.php/CgBI_file_format#Differences_from_PNG
                 try:
                     buffer_size = img_width * img_height * 4 + img_height
-                    chunk_idat_data = zlib.decompress(idat_cgbi_data, wbits=-8, bufsize=buffer_size)
+                    chunk_idat_data = decompress(idat_cgbi_data, wbits=-8, bufsize=buffer_size)
                 except Exception as e:
                     raise ArithmeticError('Error resolving IDAT chunk!\n' + str(e))
                 # Creating bytes like new data
@@ -106,16 +106,16 @@ def convert(img_bytes: bytes) -> bytes:
                         # Alpha
                         new_data = new_data + bytes([chunk_idat_data[pixel + 3]])
                 chunk_idat_data = new_data
-                chunk_idat_data = zlib.compress(chunk_idat_data)
+                chunk_idat_data = compress(chunk_idat_data)
                 chunk_length_raw = len(chunk_idat_data).to_bytes(4, 'big')
                 # cal new crc
-                new_CRC = zlib.crc32(IDAT_chunk_type)
-                new_CRC = zlib.crc32(chunk_idat_data, new_CRC)
+                new_CRC = crc32(IDAT_chunk_type)
+                new_CRC = crc32(chunk_idat_data, new_CRC)
                 new_CRC = (new_CRC + 0x100000000) % 0x100000000
                 new_PNG = new_PNG + chunk_length_raw + IDAT_chunk_type + chunk_idat_data + new_CRC.to_bytes(4, 'big')
 
-            new_CRC = zlib.crc32(chunk_type_raw)
-            new_CRC = zlib.crc32(chunk_data, new_CRC)
+            new_CRC = crc32(chunk_type_raw)
+            new_CRC = crc32(chunk_data, new_CRC)
             new_CRC = (new_CRC + 0x100000000) % 0x100000000
             new_PNG = new_PNG + chunk_length_raw + chunk_type_raw + chunk_data + new_CRC.to_bytes(4, 'big')
             current_byte = current_byte + chunk_length + 4
